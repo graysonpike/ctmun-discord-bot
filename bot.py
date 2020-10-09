@@ -4,8 +4,14 @@ import discord
 
 class Client(discord.Client):
 
+    def print_guilds(self):
+        print("Guilds Connected:")
+        for guild in self.guilds:
+            print(guild.name)
+
     async def on_ready(self):
         print('Connected as', self.user)
+        self.print_guilds()
 
     async def on_message(self, message):
         # don't respond to ourselves
@@ -13,6 +19,8 @@ class Client(discord.Client):
             return
 
         if message.content == 'ping':
+            print("Guild ID:")
+            print(message.guild.id)
             await message.channel.send('pong')
 
 
@@ -24,6 +32,7 @@ def main():
     token = get_token()
     client = Client()
     client.run(token)
+
 
 
 main()

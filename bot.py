@@ -1,6 +1,6 @@
 from config import get_config
 import discord
-from random import randrange
+from random import randrange, randint
 
 
 class Client(discord.Client):
@@ -27,7 +27,7 @@ class Client(discord.Client):
             return
 
         # If Jared says something in the CTMUN Social Server, reply a sarcastic comment
-        if message.guild.id == 759959782022184980 and message.author.id == 690732698234257408:
+        if message.guild.id == 759959782022184980 and message.author.id == 690732698234257408 and randint(0, 1) == 0:
             print("Replying sarcastic message to Jared...")
             await self.send_sarcastic_message(message.channel)
 
@@ -39,7 +39,7 @@ class Client(discord.Client):
         # Just because
         if message.content == 'ping':
             await message.channel.send('pong')
-            
+
 
     async def create_invite_links(self):
         for guild_id in self.config["guild_order"]:

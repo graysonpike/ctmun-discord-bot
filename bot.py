@@ -5,8 +5,8 @@ from random import randrange, randint
 
 class Client(discord.Client):
 
-    def __init__(self, config=None):
-        discord.Client.__init__(self)
+    def __init__(self, config=None, intents=None):
+        discord.Client.__init__(self, intents=intents)
         self.config = config
 
     def print_guilds(self):
@@ -20,6 +20,7 @@ class Client(discord.Client):
         print('Connected as', self.user)
         # self.print_guilds()
         # await self.print_guild_members(759959782022184980)
+        # await self.rearrange_roles(761025521122410507)
 
     async def on_message(self, message):
         # don't respond to ourselves
@@ -27,7 +28,7 @@ class Client(discord.Client):
             return
 
         # If Jared says something in the CTMUN Social Server, reply a sarcastic comment
-        if message.guild.id == 759959782022184980 and message.author.id == 690732698234257408 and randint(0, 1) == 0:
+        if message.guild.id == 759959782022184980 and message.author.id == 690732698234257408:
             print("Replying sarcastic message to Jared...")
             await self.send_sarcastic_message(message.channel)
 
@@ -39,6 +40,25 @@ class Client(discord.Client):
         # Just because
         if message.content == 'ping':
             await message.channel.send('pong')
+
+    async def on_member_join(self, member):
+        print("New member joined: " + member.display_name + ", " + member.guild.name)
+        if member.id in self.config['staff_ids']:
+            staff_role = member.guild.roles[-2]
+            print(staff_role)
+            print(staff_role.name)
+            await member.edit(roles=member.roles + [staff_role, ])
+
+
+    async def rearrange_roles(self, guild_id):
+        for guild in self.guilds:
+            if guild.id == guild_id:
+                roles = guild.roles
+                positions = {
+                    discord.utils.get(roles, name='CTMUN Bot'): 2,
+                    discord.utils.get(roles, name='staff'): 1,
+                }
+                await guild.edit_role_positions(positions=positions)
 
 
     async def create_invite_links(self):
@@ -61,6 +81,7 @@ class Client(discord.Client):
             if guild.id == guild_id:
                 async for member in guild.fetch_members():
                     print(str(member.id) + " " + member.display_name)
+                    # print(str(member.id))
 
 
 
@@ -68,7 +89,9 @@ class Client(discord.Client):
 def main():
     config = get_config()
     token = config['discord_token']
-    client = Client(config=config)
+    intents = discord.Intents.default()
+    intents.members = True
+    client = Client(config=config, intents=intents)
     client.run(token)
 
 
